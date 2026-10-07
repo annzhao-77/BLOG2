@@ -1,10 +1,6 @@
 # Blog 2: ACME Job Skills
 
-This is the standalone submission and reproducibility repository for Blog 2. It contains everything needed to reproduce the historical analysis; the website repository is not required.
-
-## Keeping the website copy
-
-Maintain the analysis code, input snapshot, and reproduction instructions here. After changing the article or rerunning the analysis, copy the updated `index.qmd`, `figures/`, and any changed code, data, or results into `website1/blog/posts/post2/`. Keep each repository's own README and project configuration because their paths differ. Render the website after synchronizing. The two repositories do not synchronize automatically.
+This is the standalone submission and reproducibility repository for Blog 2. It contains everything needed to reproduce the historical analysis。
 
 **Research question:** Which specific skills appear most often in ACME job requirements near Philadelphia, and how do mentions differ across job types?
 
