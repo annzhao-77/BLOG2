@@ -2,3 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+.quarto/
+index.html
+index_files/
+debug.log
+
+/.quarto/
+**/*.quarto_ipynb
