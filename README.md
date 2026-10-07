@@ -1,5 +1,7 @@
 # Blog 2: ACME Job Skills
 
+This is the standalone submission and reproducibility repository for Blog 2.
+
 Which specific skills appear most often in ACME job requirements near Philadelphia, and how do mentions differ across job types?
 
 This repository contains the code, data, and results needed to reproduce the analysis. The article is maintained and rendered in the [website repository](https://github.com/annzhao-77/website/blob/main/blog/posts/post2/index.qmd). No Quarto installation is needed here.
