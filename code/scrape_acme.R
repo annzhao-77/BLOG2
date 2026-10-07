@@ -5,8 +5,10 @@ library(stringr)
 library(magrittr) # %>%: pass the result to the next step, as in DataCamp
 
 # Open BLOG2.Rproj and run from this repository root:
-# source("scrape_acme.R")
+# source("code/scrape_acme.R")
 if (.Platform$OS.type == "windows") Sys.setlocale("LC_CTYPE", ".UTF-8")
+
+dir.create("data/raw", recursive = TRUE, showWarnings = FALSE)
 
 # 1. Open the search page. This website loads its jobs using JavaScript.
 url <- "https://eofd.fa.us6.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/jobs?location=Philadelphia%2C+PA%2C+United+States&locationId=300000002802382&locationLevel=city&mode=location&radius=25&radiusUnit=KM"
@@ -116,7 +118,7 @@ for (i in seq_along(job_links)) {
       requirements = requirements
     )
     # Update the same CSV so progress is kept if the run is interrupted.
-    write.csv(do.call(rbind, jobs), "acme_jobs.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
+    write.csv(do.call(rbind, jobs), "data/raw/acme_jobs.csv", row.names = FALSE, na = "", fileEncoding = "UTF-8")
   }, error = function(e) {
     failed_links <<- c(failed_links, job_links[i])
     message("Could not read: ", job_links[i], " — ", conditionMessage(e))
@@ -126,7 +128,7 @@ for (i in seq_along(job_links)) {
 }
 if (!length(jobs)) stop("No job details were collected.")
 acme_jobs <- do.call(rbind, jobs)
-cat("Saved", nrow(acme_jobs), "jobs to acme_jobs.csv\n")
+cat("Saved", nrow(acme_jobs), "jobs to data/raw/acme_jobs.csv\n")
 cat("Missing requirements:", sum(is.na(acme_jobs$requirements)), "\n")
 cat("Failed pages:", length(failed_links), "\n")
 if (length(failed_links)) print(failed_links)

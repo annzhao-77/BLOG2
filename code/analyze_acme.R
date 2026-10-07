@@ -4,11 +4,11 @@ library(stringr)
 library(ggplot2)
 
 # Open BLOG2.Rproj and run from this repository root:
-# source("analyze_acme.R")
+# source("code/analyze_acme.R")
 if (.Platform$OS.type == "windows") Sys.setlocale("LC_CTYPE", ".UTF-8")
 
 # 1. Read and check the data. One row should mean one job posting.
-jobs <- read.csv("acme_jobs.csv", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+jobs <- read.csv("data/raw/acme_jobs.csv", fileEncoding = "UTF-8", stringsAsFactors = FALSE)
 stopifnot(!anyDuplicated(jobs$job_id), all(jobs$banner == "ACME Markets"))
 stopifnot(all(!is.na(jobs$requirements)), all(nzchar(jobs$requirements)))
 cat("Job postings:", nrow(jobs), "\n")
@@ -82,6 +82,11 @@ for (i in 1:nrow(skills)) {
 # A simple table to inspect when checking the classification.
 skill_evidence <- skill_results %>% filter(mentioned)
 
+# Save cleaned postings and one row per posting-skill pair for inspection.
+dir.create("data/clean", recursive = TRUE, showWarnings = FALSE)
+write.csv(jobs, "data/clean/jobs_clean.csv", row.names = FALSE, fileEncoding = "UTF-8")
+write.csv(skill_results, "data/clean/job_skills.csv", row.names = FALSE, fileEncoding = "UTF-8")
+
 # 4. Overall frequency. The denominator includes all 118 postings.
 skill_summary <- skill_results %>%
   group_by(skill) %>%
@@ -100,13 +105,13 @@ by_type <- skill_results %>%
   mutate(percent = mentions / postings * 100)
 
 # Save the underlying numbers as well as the figures.
-dir.create("results", showWarnings = FALSE)
-write.csv(job_counts, "results/job_counts.csv", row.names = FALSE)
-write.csv(skill_summary, "results/skill_summary.csv", row.names = FALSE)
-write.csv(by_type, "results/skills_by_job_type.csv", row.names = FALSE)
+dir.create("results/tables", recursive = TRUE, showWarnings = FALSE)
+write.csv(job_counts, "results/tables/job_counts.csv", row.names = FALSE)
+write.csv(skill_summary, "results/tables/skill_summary.csv", row.names = FALSE)
+write.csv(by_type, "results/tables/skills_by_job_type.csv", row.names = FALSE)
 
 # 6. Make three figures.
-dir.create("figures", showWarnings = FALSE)
+dir.create("results/figures", recursive = TRUE, showWarnings = FALSE)
 theme_set(theme_minimal(base_size = 12))
 source_note <- paste0("Source: ACME career postings, collected 20 Sep 2026 | N = ", nrow(jobs), ".")
 
@@ -117,7 +122,7 @@ p1 <- ggplot(job_counts, aes(x = postings, y = reorder(job_type, postings))) +
   labs(title = "Which job types are in the sample?", subtitle = "Job types grouped from posting titles",
        x = "Number of postings", y = NULL, caption = source_note) +
   theme(panel.grid.major.y = element_blank())
-ggsave("figures/job_types.png", p1, width = 10, height = 5.5, dpi = 180, bg = "white")
+ggsave("results/figures/job_types.png", p1, width = 10, height = 5.5, dpi = 180, bg = "white")
 
 p2 <- ggplot(skill_summary, aes(x = percent, y = reorder(skill, percent))) +
   geom_col(fill = "#B53B46", width = 0.65) +
@@ -128,7 +133,7 @@ p2 <- ggplot(skill_summary, aes(x = percent, y = reorder(skill, percent))) +
        x = "Share of all postings", y = NULL,
        caption = paste(source_note, "\nEach skill counted once per posting; required/preferred mentions combined. Repeated templates retained.")) +
   theme(panel.grid.major.y = element_blank())
-ggsave("figures/skill_frequency.png", p2, width = 11, height = 8, dpi = 180, bg = "white")
+ggsave("results/figures/skill_frequency.png", p2, width = 11, height = 8, dpi = 180, bg = "white")
 
 # Show groups with at least five postings; smaller groups are too sparse here.
 heatmap_data <- by_type %>% filter(postings >= 5) %>%
@@ -143,7 +148,7 @@ p3 <- ggplot(heatmap_data, aes(x = group_label, y = skill, fill = percent)) +
        x = NULL, y = NULL,
        caption = paste(source_note, "\nPharmacy (n = 3) and maintenance (n = 1) omitted here. 0% means no matched phrase, not no skill needed.")) +
   theme(panel.grid = element_blank(), axis.text.x = element_text(size = 10))
-ggsave("figures/skills_by_job_type.png", p3, width = 12, height = 8, dpi = 180, bg = "white")
+ggsave("results/figures/skills_by_job_type.png", p3, width = 12, height = 8, dpi = 180, bg = "white")
 
 if (interactive()) {
   print(p1)
